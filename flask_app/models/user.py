@@ -27,14 +27,25 @@ class User:
     def get_user(cls, data):
         query = "SELECT * FROM users WHERE id = %(id)s;"
         result = connectToMySQL('login_base').query_db(query, data)
-        return result
+        return cls(result[0])
     
+    @classmethod
+    def get_all(cls):
+        query = "SELECT * FROM users;"
+        results = connectToMySQL("login_base").query_db(query)
+        users = []
+        for user in results:
+            users.append( cls(user))
+        return users
+
     ##revisa si correo coincide para iniciar sesión
     @classmethod
     def get_login(cls, data):
         query = "SELECT * FROM users WHERE email =%(email)s;"
         result = connectToMySQL("login_base").query_db(query,data)
-        return result
+        if len(result) < 1:
+            return False
+        return cls(result[0])
 
     
     @staticmethod

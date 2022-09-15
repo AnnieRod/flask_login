@@ -7,15 +7,10 @@ from flask_app.models.user import User
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt(app)
 
-##Home
+## Home
 @app.route("/")
 def start_form():
-    if 'user_id' not in session:
-        flash("please log to enter", "login")
-        return redirect("/")
-
     return render_template("index.html")
-
 
 ## Crea usuario con las validaciones necesarias
 @app.route("/process", methods = ['POST'])
@@ -37,7 +32,7 @@ def create_user():
     return redirect("/success")
 
 #Ruta para login, comapra correo y pass
-@app.route ("/login", methods = ['POST'])
+@app.route ("/process_login", methods = ['POST'])
 def login_user():
     data = {
         "email" : request.form["email"]
@@ -47,11 +42,11 @@ def login_user():
         flash("Invalid mail/password", "login")
         return redirect("/")
 
-    if not bcrypt.check_password_hash(user_db[0]["password"], request.form['password']):
+    if not bcrypt.check_password_hash(user_db.password, request.form['password']):
         flash("Invalid mail/password", "login")
         return redirect("/")
     
-    session['user_id'] = user_db[0]["first_name"]
+    session['user_id'] = user_db.id
     return redirect("/success")
 
 @app.route("/success")
@@ -65,7 +60,7 @@ def main_page():
     return render_template("main.html", user = User.get_user(data))
 
 ##logout
-@app.route('/logout') ##fallo con logout, redirige muchas veces y se cae sistema
+@app.route('/logout') 
 def logout():
     session.clear()
     return redirect('/')
